@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+~$*.xlsx
+
+# 会議の実行結果（DB本体はローカル生成物。docs は成果物として残す）
+db/*.db
+db/archive/
