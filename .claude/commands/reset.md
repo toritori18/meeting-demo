@@ -38,7 +38,7 @@ allowed-tools: Bash, Read
 
    # 案件開始時に確定済みの前提を戻す。
    # キックオフは会議の型から外してあるため、ここで初期値として与えないと
-   # 決定権が「未確認」のままになり、型①「要件を詰める」が空転する。
+   # 決定権が「未確認」のままになり、「要件を詰める」が空転する。
    python scripts/record.py state --key decision_authority --value "委譲済み"
    python scripts/record.py decision --status 本 --by client-boss      --body "業務ルール（判定基準など）と画面の作りは client-staff の判断で決めてよい。部長（client-boss）の決定として扱う。ただし予算・納期・スコープが変わる話は必ず部長に上げること。"      --rationale "案件開始時に業務担当者（部長）から明示された前提。会議で決め直さない。"
    python scripts/record.py decision --status 本 --by client-boss      --body "成功基準は「速さより正確さ」。突合の見落としをなくすことを最優先し、判定に迷うものは機械的に流さず人の目に上げる。具体的な閾値・条件は client-staff と詰める。"      --rationale "案件開始時に業務担当者（部長）から明示された前提。会議で決め直さない。"
