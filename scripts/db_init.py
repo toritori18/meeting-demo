@@ -166,7 +166,7 @@ CREATE TABLE IF NOT EXISTS state(
 # 既存DBに後から足した列。CREATE TABLE IF NOT EXISTS では追加されないので
 # 起動時に不足分だけ ALTER TABLE する（冪等）。
 MIGRATIONS = [
-    ("meeting", "budget_min", "INTEGER DEFAULT 30"),   # 会議の持ち時間（分）
+    ("meeting", "budget_min", "INTEGER DEFAULT 60"),   # 会議の持ち時間（分）
     ("utterance", "minutes", "INTEGER DEFAULT 0"),     # その発言が費やした想定時間
 ]
 

@@ -3,7 +3,7 @@
 実時間ではなく**シミュレート上の会議時間**を扱う。発言1件ごとに想定所要時間
 （司会1分／エージェント3分／監督0分）を積み上げ、持ち時間に対する残りを出す。
 
-これがあると「1回30分の実会議」に相当する分量で区切れる。区切ると:
+これがあると「1回60分の実会議」に相当する分量で区切れる。区切ると:
   - 現実の進行に近くなる（1回で全部は決まらない）
   - エージェント呼び出しが 8〜12 回に収まり、コストが下がる
   - 何を今日話すかの優先順位づけが練習になる
@@ -36,7 +36,7 @@ def status(con, mid: int) -> dict:
         "SELECT COALESCE(SUM(minutes),0) AS n FROM utterance WHERE meeting_id=?",
         (mid,),
     ).fetchone()["n"]
-    budget = m["budget_min"] or 30
+    budget = m["budget_min"] or 60
     return {
         "seq": m["seq"], "purpose": m["purpose"],
         "budget": budget, "used": used, "left": budget - used,

@@ -226,8 +226,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--purpose", required=True)
     p.add_argument("--participant", action="append",
                    help="agent:mode 形式。例 client-boss:opening")
-    p.add_argument("--minutes", type=int, default=30,
-                   help="会議の持ち時間（分）。既定30")
+    p.add_argument("--minutes", type=int, default=60,
+                   help="会議の持ち時間（分）。既定60")
     p.set_defaults(fn=cmd_meeting_open)
 
     p = sub.add_parser("meeting-close")

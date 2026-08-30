@@ -27,7 +27,7 @@ allowed-tools: Bash, Read
 | 消える | 残る |
 |---|---|
 | 会議・発言・決定・宿題・画面・機能・確定事実 | `docs/90_ground-truth.md`（業務側の設定） |
-| 決定権ステータス（未確認に戻る） | `docs/10_tobe-flow.md` / `12_briefing.md` |
+| 決定権ステータス（初期値「委譲済み」に戻る） | `docs/10_tobe-flow.md` / `12_briefing.md` |
 | 各種枠 | エージェント定義・コマンド・スキル |
 | 自動生成のMarkdownビュー | `docs/20_requirements-draft.md` / `22_detail-spec.md`（**手動で消す判断が要る**） |
 
@@ -35,6 +35,15 @@ allowed-tools: Bash, Read
    ```bash
    rm -f db/meeting.db
    python scripts/db_init.py
+
+   # 案件開始時に確定済みの前提を戻す。
+   # キックオフは会議の型から外してあるため、ここで初期値として与えないと
+   # 決定権が「未確認」のままになり、型①「要件を詰める」が空転する。
+   python scripts/record.py state --key decision_authority --value "委譲済み"
+   python scripts/record.py decision --status 本 --by client-boss      --body "業務ルール（判定基準など）と画面の作りは client-staff の判断で決めてよい。部長（client-boss）の決定として扱う。ただし予算・納期・スコープが変わる話は必ず部長に上げること。"      --rationale "案件開始時に業務担当者（部長）から明示された前提。会議で決め直さない。"
+   python scripts/record.py decision --status 本 --by client-boss      --body "成功基準は「速さより正確さ」。突合の見落としをなくすことを最優先し、判定に迷うものは機械的に流さず人の目に上げる。具体的な閾値・条件は client-staff と詰める。"      --rationale "案件開始時に業務担当者（部長）から明示された前提。会議で決め直さない。"
+   python scripts/record.py fact --topic "決定権" --by client-boss      --body "業務ルール・画面＝部下（client-staff）に委譲。予算・納期・スコープ変更＝部長（client-boss）決裁。"
+
    python scripts/views.py
    python scripts/export_excel.py
    ```
