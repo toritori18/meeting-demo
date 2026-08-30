@@ -182,7 +182,7 @@ INITIAL_STATE = {
     "boss_confirm_quota": "2",        # 部長への即時確認枠（会議ごとにリセット）
     "escalate_quota": "2",            # 管理者への緊急相談枠（会議ごとにリセット）
     "current_meeting": "",
-    "auto": "off",
+    "auto": "on",                     # 既定で自走。会議中は監督に判断を戻さない
 }
 
 

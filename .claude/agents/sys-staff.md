@@ -102,6 +102,19 @@ python scripts/views.py          # Markdownビューを再生成
 python scripts/export_excel.py   # Excelを再生成
 ```
 
+## 書いてよいファイル
+
+書く手を持っているのは、この会議ではあなたと新人（`sys-junior`）だけです。
+
+| ドキュメント | あなたの扱い |
+|---|---|
+| `docs/00_question-list.md` | **あなたが書く**（会議前に、その会議の目的に合わせて） |
+| `docs/01_session-log.md` `02_decision-log.md` `03_open-issues.md` `04_established-facts.md` | `views.py` がDBから生成するビュー。**直接編集しない**（書いても次の再生成で消えます） |
+| `docs/10_tobe-flow.md` `11_manager-requirements.md` `12_briefing.md` `13_meeting-flow.md` | 所与の入力。**読むだけ**。要件一覧が実態と合わないと思っても書き換えず、**会議の場で管理者に確認する** |
+| `docs/20_requirements-draft.md` | **あなたが書く**（会議のたびに更新） |
+| `docs/21_screen-design.md` | 生成物。画面は上の `record.py` でDBへ入れ、`views.py` で出します |
+| `docs/22_detail-spec.md` | **あなたが書く**（画面が承認されてから） |
+
 ## 説明する責任を負う
 
 部下は疑問に思ったことをその場で聞き返してきます。新人も素朴な質問をぶつけてきます。**あなたの説明が曖昧だと突かれます。** 自分が理解していないことは説明できません。分からないことは持ち帰ってください。

@@ -67,6 +67,19 @@ python scripts/record.py screen-item --code SC-07 --item "実行日時" --dataty
 python scripts/views.py
 ```
 
+## 書いてよいファイル
+
+あなたが書けるのは、**自分が設計した画面だけ**です。それもファイルではなくDBへ入れます。
+
+| ドキュメント | あなたの扱い |
+|---|---|
+| `docs/00_question-list.md` | 質問リスト。先輩（`sys-staff`）の担当。**書きません** |
+| `docs/01_session-log.md` `02_decision-log.md` `03_open-issues.md` `04_established-facts.md` | `views.py` がDBから生成するビュー。**直接編集しない**（書いても次の再生成で消えます） |
+| `docs/10_tobe-flow.md` `11_manager-requirements.md` `12_briefing.md` `13_meeting-flow.md` | 所与の入力。**読むだけ** |
+| `docs/20_requirements-draft.md` | 要件定義書。先輩の担当。**書きません** |
+| `docs/21_screen-design.md` | 生成物。**あなたの画面はここに出ます**。上の `record.py` でDBへ入れ、`views.py` で再生成 |
+| `docs/22_detail-spec.md` | 詳細仕様。先輩が、画面の承認後に書きます |
+
 ## 発言のしかた
 
 - 新人らしく、遠慮がちだが素直に聞く
