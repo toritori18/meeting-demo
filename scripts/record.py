@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 
 from db_init import connect, current_meeting_id, get_state, now, set_state
@@ -32,6 +33,16 @@ JUDGMENTS = ["採用", "次期", "対象外", "保留"]
 
 
 def cmd_meeting_open(con, a):
+    # 前の回が閉じていないまま次を開くと、その回は永久に「進行中」で残る。
+    # 総括も次回提案も備忘も入らないので、ここで止める（回収は /meeting-close）。
+    stale = con.execute(
+        "SELECT seq FROM meeting WHERE closed_at IS NULL ORDER BY seq").fetchall()
+    if stale and not a.force:
+        sys.exit(
+            "第{}回がまだ閉じられていません。先に /meeting-close を実行してください。\n"
+            "（意図して開きっぱなしにするなら --force）".format(
+                "・第".join(str(r["seq"]) for r in stale)))
+
     seq = con.execute("SELECT COALESCE(MAX(seq),0)+1 AS n FROM meeting").fetchone()["n"]
     cur = con.execute(
         "INSERT INTO meeting(seq,purpose,opened_at,budget_min) VALUES(?,?,?,?)",
@@ -62,6 +73,44 @@ def cmd_meeting_close(con, a):
     )
     set_state(con, "current_meeting", "")
     print("meeting_id={} を閉会".format(mid))
+
+
+def _unmangle_slash(v: str | None) -> str | None:
+    """Git Bash の MSYS パス変換を戻す。
+
+    "/meeting-open …" のようなコマンド文面を引数で渡すと
+    "C:/Program Files/Git/meeting-open …" に化けてDBに入ってしまう。
+    """
+    if v:
+        m = re.match(r"^[A-Za-z]:[\\/].*?[\\/]Git[\\/](.*)$", v, re.S)
+        if m:
+            return "/" + m.group(1)
+    return v
+
+
+def cmd_meeting_set(con, a):
+    """開会後に判定したゴールと、閉会時に提案した次回を会議に書き足す。
+
+    どちらも開会の時点では決まっていないので meeting-open では受けない。
+    """
+    mid = a.meeting_id or current_meeting_id(con)
+    if not mid:
+        # 閉会後に呼ぶこともあるので、直近の会議に落とす
+        row = con.execute("SELECT id FROM meeting ORDER BY seq DESC LIMIT 1").fetchone()
+        if not row:
+            sys.exit("会議がありません")
+        mid = row["id"]
+    sets, vals = [], []
+    for col, val in (("goal", _unmangle_slash(a.goal)),
+                     ("next_step", _unmangle_slash(a.next))):
+        if val is not None:
+            sets.append(col + "=?")
+            vals.append(val)
+    if not sets:
+        sys.exit("--goal か --next のどちらかを指定してください")
+    vals.append(mid)
+    con.execute("UPDATE meeting SET " + ",".join(sets) + " WHERE id=?", vals)
+    print("meeting_id={} に {} を記録".format(mid, "/".join(s[:-2] for s in sets)))
 
 
 def cmd_decision(con, a):
@@ -228,12 +277,20 @@ def build_parser() -> argparse.ArgumentParser:
                    help="agent:mode 形式。例 client-boss:opening")
     p.add_argument("--minutes", type=int, default=60,
                    help="会議の持ち時間（分）。既定60")
+    p.add_argument("--force", action="store_true",
+                   help="前の回が閉じていなくても開く")
     p.set_defaults(fn=cmd_meeting_open)
 
     p = sub.add_parser("meeting-close")
     p.add_argument("--summary")
     p.add_argument("--meeting-id", type=int)
     p.set_defaults(fn=cmd_meeting_close)
+
+    p = sub.add_parser("meeting-set")
+    p.add_argument("--goal", help="開会時に宣言した本日のゴール（2本立て）")
+    p.add_argument("--next", help="閉会時に提案した次回の会議（/meeting-open に渡せる文面）")
+    p.add_argument("--meeting-id", type=int)
+    p.set_defaults(fn=cmd_meeting_set)
 
     p = sub.add_parser("decision")
     p.add_argument("--body", required=True)

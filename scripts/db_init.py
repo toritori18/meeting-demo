@@ -168,6 +168,8 @@ CREATE TABLE IF NOT EXISTS state(
 MIGRATIONS = [
     ("meeting", "budget_min", "INTEGER DEFAULT 60"),   # 会議の持ち時間（分）
     ("utterance", "minutes", "INTEGER DEFAULT 0"),     # その発言が費やした想定時間
+    ("meeting", "goal", "TEXT"),                       # 開会時に宣言したゴール（2本立て）
+    ("meeting", "next_step", "TEXT"),                  # 閉会時に提案した次回の会議
 ]
 
 # 発言1件あたりの想定所要時間（分）。実会議の体感に合わせた見積もり

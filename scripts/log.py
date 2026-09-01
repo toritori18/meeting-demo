@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 
 from db_init import connect, current_meeting_id, estimate_minutes, now
@@ -118,6 +119,13 @@ def run_hook() -> None:
         if not body:
             body = json.dumps(tout, ensure_ascii=False)[:MAX_BODY]
         if not body.strip():
+            return
+
+        # SendMessage の応答は本文を含まず "Resuming agent <id>" だけが返る。
+        # そのまま入れると、話者がエージェント名でなくハッシュIDの、中身のない発言が
+        # 積み上がり、会議時間まで食う（1件3分）。継続分の本文は司会が明示的に入れる
+        # （CLAUDE.md 2番）ので、ここでは捨てる。
+        if re.match(r"^\s*(Resuming|Continuing)\s+agent\b", body):
             return
 
         insert(speaker, body, topic=None)

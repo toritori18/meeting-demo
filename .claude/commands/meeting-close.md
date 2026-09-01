@@ -92,6 +92,21 @@ cat docs/13_meeting-flow.md
 提案は `/meeting-open` にそのまま渡せる自由文の形で示すこと（例:
 「`/meeting-open 突合の判定基準を詰めたい`」）。
 
+## 手順6: 備忘を書き出す
+
+次回の提案をDBに残してから、本日1回分の備忘を生成します。
+
+```bash
+python scripts/record.py meeting-set --next "/meeting-open 突合の判定基準を詰めたい"
+python scripts/minutes.py --latest
+```
+
+`output/備忘_NN.md` が本日1回分の1枚です（目的・ゴール・総括・参加者・決定・宿題・確定事実・次回）。
+`docs/` のビューが種類ごとの縦串なのに対し、こちらは**1回の会議の横串**で、そのまま人に渡せます。
+発言の原文は載せず、根拠発言のIDだけ残します。**生成したパスを監督に伝えてください。**
+
+過去回を作り直したいときは `python scripts/minutes.py`（全回）または `--meeting 2`（第2回だけ）。
+
 最後に本日のサマリを表で示してください。
 
 ```bash

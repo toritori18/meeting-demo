@@ -64,9 +64,20 @@ def main() -> None:
     con = connect()
     try:
         mid = current_meeting_id(con)
+        # 閉会すると current_meeting は空になる。/meeting-close は閉会してから
+        # 内訳を出すので、進行中がなければ直近の回に落とす（でないと必ず空振りする）
+        closed = False
         if not mid:
-            print("進行中の会議はありません。")
-            return
+            row = con.execute(
+                "SELECT id FROM meeting ORDER BY seq DESC LIMIT 1").fetchone()
+            if not row:
+                print("まだ会議は開かれていません。")
+                return
+            mid, closed = row["id"], True
+
+        if args.budget and closed:
+            print("進行中の会議がないため持ち時間は変更できません。")
+            args.budget = None
 
         if args.budget:
             con.execute("UPDATE meeting SET budget_min=? WHERE id=?", (args.budget, mid))
@@ -74,10 +85,12 @@ def main() -> None:
             print("持ち時間を {} 分に変更しました。".format(args.budget))
 
         st = status(con, mid)
-        print("第{}回 — {}".format(st["seq"], st["purpose"]))
+        print("第{}回{} — {}".format(
+            st["seq"], "（閉会済み）" if closed else "", st["purpose"]))
         print("{}  {} / {} 分 使用、残り {} 分".format(
             _bar(st["used"], st["budget"]), st["used"], st["budget"], st["left"]))
-        print(advice(st["left"], st["budget"]))
+        if not closed:
+            print(advice(st["left"], st["budget"]))
 
         if args.detail:
             print("\n内訳（話者別）")
